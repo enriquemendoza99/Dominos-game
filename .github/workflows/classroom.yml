@@ -64,14 +64,13 @@ jobs:
         command: "[ -f .gitignore ]"
         timeout: 1
         max-score: 1
-    - name: Readme has non-bot commit(s)
-      id: readme-has-non-bot-commit-s
+    - name: Readme has commit(s) after initial fork
+      id: readme-has-commit-s-after-initial-fork
       uses: classroom-resources/autograding-command-grader@v1
       with:
-        test-name: Readme has non-bot commit(s)
+        test-name: Readme has commit(s) after initial fork
         setup-command: ''
-        command: test $(git log --perl-regexp --author='^((?!github-classroom).*)$'
-          --oneline -- README.md | wc -l) -ge 1
+        command: test $(git log --oneline -- README.md | wc -l) -ge 2
         timeout: 1
         max-score: 1
     - name: Autograding Reporter
@@ -82,6 +81,6 @@ jobs:
         JAVA-FILES-IN-PACKAGES-IN-SRC_RESULTS: "${{steps.java-files-in-packages-in-src.outputs.result}}"
         NO-COMMON-GENERATED-FILES-IN-THE-REPO-IDEA-OUT-IML-CLASS-DS_STORE_RESULTS: "${{steps.no-common-generated-files-in-the-repo-idea-out-iml-class-ds_store.outputs.result}}"
         GITIGNORE-EXISTS_RESULTS: "${{steps.gitignore-exists.outputs.result}}"
-        README-HAS-NON-BOT-COMMIT-S_RESULTS: "${{steps.readme-has-non-bot-commit-s.outputs.result}}"
+        README-HAS-COMMIT-S-AFTER-INITIAL-FORK_RESULTS: "${{steps.readme-has-commit-s-after-initial-fork.outputs.result}}"
       with:
-        runners: readme-exists,doc-directory-exists-and-contains-at-least-one-pdf-file,java-files-in-packages-in-src,no-common-generated-files-in-the-repo-idea-out-iml-class-ds_store,gitignore-exists,readme-has-non-bot-commit-s
+        runners: readme-exists,doc-directory-exists-and-contains-at-least-one-pdf-file,java-files-in-packages-in-src,no-common-generated-files-in-the-repo-idea-out-iml-class-ds_store,gitignore-exists,readme-has-commit-s-after-initial-fork
