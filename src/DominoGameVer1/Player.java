@@ -1,3 +1,5 @@
+package DominoGameVer1;
+
 /**
  * Represents a player in the Domino Game
  */

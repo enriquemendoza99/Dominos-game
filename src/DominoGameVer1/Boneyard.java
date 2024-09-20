@@ -1,3 +1,5 @@
+package DominoGameVer1;
+
 /**
  * Represents the boneyard in the Domino game
  */

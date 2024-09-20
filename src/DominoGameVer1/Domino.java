@@ -1,3 +1,5 @@
+package DominoGameVer1;
+
 /**
  * Represents a single domino in the game
  */

@@ -1,3 +1,5 @@
+package DominoGameVer1;
+
 /**
  * Represents the main game logic for the Domino game
  * @author Enrique Mendoza

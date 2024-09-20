@@ -1,3 +1,5 @@
+package DominoGameVer1;
+
 /**
  * Represents the game board where dominos are played
  */
