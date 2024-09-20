@@ -45,20 +45,6 @@ public class Player {
     }
 
     /**
-     * Checks if the player has a playable domino
-     * @param left the left end of the board
-     * @param right the right end of the board
-     * @return true if the player has a playable domino
-     */
-    public boolean hasPlayableDomino(int left, int right) {
-        return hand.stream().anyMatch(d -> d.getLeft() == left ||
-                d.getRight() == left ||
-                d.getLeft() == right || d.getRight() == right ||
-                d.getLeft() == 0 || d.getRight() == 0 ||
-                left == 0 || right == 0);
-    }
-
-    /**
      * Removes a domino from the player's hand
      * @param domino the domino to remove
      */

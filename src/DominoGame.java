@@ -42,10 +42,10 @@ public class DominoGame {
                 }
             }
         }
-        announceWinner();
+        winnerAnnounce();
     }
     /**
-     * Deal the starting hands to both players
+     * Distributes initial dominos to players
      */
     private void dealInitialHands() {
         for (int i = 0; i < 7; i++) {
@@ -150,7 +150,7 @@ public class DominoGame {
         return playComputerDomino();
     }
     /**
-     * Handles the process of the computer player choosing and playing a domino
+     * Handles the computer player´s process of choosing and playing a domino
      * @return true if a domino was place in the board
      */
     private boolean playComputerDomino() {
@@ -172,7 +172,7 @@ public class DominoGame {
         return true;
     }
     /**
-     * Checks if a player has any playable dominos.
+     * Checks if a player has a playable dominos.
      * @param player the player to check
      * @return true if the player has a playable domino
      */
@@ -180,9 +180,9 @@ public class DominoGame {
         return player.getHand().stream().anyMatch(this::canPlay);
     }
     /**
-     * Checks if a domino can be player on either end of the board
+     * Checks if a domino can be played
      * @param domino the domino to check
-     * @return true if the domino can be player
+     * @return true if the domino can be played
      */
     private boolean canPlay(Domino domino) {
         return canPlayLeft(domino) || canPlayRight(domino);
@@ -245,7 +245,7 @@ public class DominoGame {
     /**
      * Announces the winner of the game.
      */
-    private void announceWinner() {
+    private void winnerAnnounce() {
         System.out.println("\nGame Over!");
         displayGameState();
         int humanScore = human.getScore();
