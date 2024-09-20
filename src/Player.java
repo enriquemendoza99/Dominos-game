@@ -1,63 +1,68 @@
 /**
- * Represents a player in the game. Each player has a name, a hand of
- * dominos, and a score.
+ * Represents a player in the Domino Game
  */
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Player {
+    // The player's hand of dominos
+    private List<Domino> hand;
+    // The player's name
     private String name;
-    private Hand hand;
-    private int score;
 
     /**
-     * Construct a new Player with the given name.
-     * Initializes an empty hand and the score is 0 when starts.
-     * @param name the name of the player.
+     * Construtor to create a new Player
+     * @param name the name of the player
      */
     public Player(String name) {
         this.name = name;
-        this.hand = new Hand();
-        this.score = 0;
+        this.hand = new ArrayList<>();
     }
 
     /**
-     * Removes a domino from the player´s hand
-     * @param domino the domino to be played on the board.
+     * Adds a domino to the player's hand
+     * @param domino the domino to add
      */
-    public void playDomino(Domino domino) {
-        hand.removeDomino(domino);
+    public void addDomino(Domino domino) {
+        hand.add(domino);
     }
 
     /**
-     * Adds a domino to the player´s hand.
-     * @param domino the domino to be added to the hand.
+     * Gets the player's current hand
+     * @return the list of dominos in the player's hand
      */
-    public void drawDomino(Domino domino) {
-        hand.addDomino(domino);
+    public List<Domino> getHand() { return hand; }
+
+    /**
+     * Calculates the player's score based on the sum of dominos in their hand
+     * @return the total score
+     */
+    public int getScore() {
+        //maptoInt is a method of the Stream interface that allows you to
+        // transform a stream of objects into a stream of primitive int values.
+        return hand.stream().mapToInt(Domino::getSum).sum();
     }
 
     /**
-     * Calculate the score based on the dominos in their hand.
+     * Checks if the player has a playable domino
+     * @param left the left end of the board
+     * @param right the right end of the board
+     * @return true if the player has a playable domino
      */
-    public void calculateScore() {
-        score = hand.getDominos().stream()
-                .mapToInt(d -> d.getLeftValue() + d.getRightValue())
-                .sum();
+    public boolean hasPlayableDomino(int left, int right) {
+        return hand.stream().anyMatch(d -> d.getLeft() == left ||
+                d.getRight() == left ||
+                d.getLeft() == right || d.getRight() == right ||
+                d.getLeft() == 0 || d.getRight() == 0 ||
+                left == 0 || right == 0);
     }
 
     /**
-     * Gets the name of the player
-     * @return the player´s name
+     * Removes a domino from the player's hand
+     * @param domino the domino to remove
      */
-    public String getName() { return name; }
-
-    /**
-     * Gets the player´s hand.
-     * @return the player´s hand object
-     */
-    public Hand getHand() { return hand; }
-
-    /**
-     * Gets the player´s current score
-     * @return the player´s score.
-     */
-    public int getScore() { return score; }
+    public void removeDomino(Domino domino) {
+        hand.remove(domino);
+    }
 }

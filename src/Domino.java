@@ -1,58 +1,54 @@
 /**
- * Represents a single domino piece in the game. Each one has a left and right
- * value.
+ * Represents a single domino in the game
  */
 public class Domino {
-    private int leftValue;
-    private int rightValue;
+    // The left and right values of the domino
+    private int left;
+    private int right;
 
     /**
-     * Constructs a new Domino with the left and right values
-     * @param leftValue the value on the left side of the domino.
-     * @param rightValue the value on the right side of the domino.
+     * Constructor to create a new Domino.
+     * @param left the left value of the domino
+     * @param right the right value of the domino
      */
-    public Domino(int leftValue, int rightValue) {
-        this.leftValue = leftValue;
-        this.rightValue = rightValue;
-    }
-
-    /**
-     * Rotates the domino by swapping its left and right values.
-     */
-    public void rotate() {
-        int temp = leftValue;
-        leftValue = rightValue;
-        rightValue = temp;
-    }
-
-    /**
-     * Check if the domino can be connected to another domino
-     * @param other the other domino to check for a match
-     * @return true if the domino can connect to the other domino
-     */
-    public boolean matches(Domino other) {
-        return this.leftValue == other.rightValue || this.rightValue == other.leftValue;
-    }
-
-    /**
-     * Returns a string representation of the domino
-     * @return a string in the format "[leftValue, rightValue]"
-     */
-    @Override
-    public String toString() {
-        return "[" + leftValue + " " + rightValue + "]";
+    public Domino(int left, int right) {
+        this.left = left;
+        this.right = right;
     }
 
     /**
      * Gets the left value of the domino
      * @return the left value
      */
-    public int getLeftValue() { return leftValue; }
+    public int getLeft() { return left; }
 
     /**
      * Gets the right value of the domino
      * @return the right value
      */
-    public int getRightValue() { return rightValue; }
-}
+    public int getRight() { return right; }
 
+    /**
+     * Rotates the domino by swapping its left and right values
+     */
+    public void rotate() {
+        int temp = left;
+        left = right;
+        right = temp;
+    }
+
+    /**
+     * Calculates the sum of the domino´s values
+     * @return the sum of left and right values
+     */
+    public int getSum() { return left + right; }
+
+    /**
+     * Provides a string representation of the domino
+     * @return a string in the format [left/right]
+     */
+    @Override
+    public String toString() {
+        return "[" + left + "|" + right + "]";
+    }
+}
