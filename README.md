@@ -45,6 +45,7 @@ Version 2: GUI-based
 This file tells git which files to you should not track with version control
 ### Jar file(s)
 Executable jar file(s) with all resources needed to run.
+The jar files are located in the .idea folder.
 
 ## src/ folder
 This contains your source code, organized into one or more packages.
