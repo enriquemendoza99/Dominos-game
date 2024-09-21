@@ -10,11 +10,17 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class DominoGame {
+    // Represent the human player
     private Player human;
+    //Represents the computer player
     private Player computer;
+    //Represents the pool of undrawn dominos
     private Boneyard boneyard;
+    //Represent the current state of the game board
     private GameBoard board;
+    // Represent the input of the player
     private Scanner scanner;
+    //Player who made the last move
     private Player lastPlayer;
 
     /**
@@ -213,7 +219,7 @@ public class DominoGame {
     /**
      * Checks if playing a domino is valid
      * @param domino the domino to play
-     * @param playOnLeft true if playing on the left en
+     * @param playOnLeft true if playing on the left end
      * @return true if the play is valid
      */
     private boolean isValidPlay(Domino domino, boolean playOnLeft) {

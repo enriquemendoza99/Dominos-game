@@ -15,7 +15,7 @@ public class GameBoard {
     private int rightEnd;
 
     /**
-     * Constructor for a new GameBoard
+     * Initializes an empty game board.
      */
     public GameBoard() {
         playedDominos = new ArrayList<>();
