@@ -87,9 +87,3 @@ This contains your source code, organized into one or more packages.
 ## doc/ folder
 In the doc folder are the proposed designs of each domino version.
 
-### Object design diagram
-The object design document should be in PDF format.
-First page/slide is object diagram, with description of objects on the next page(s).
-On more complicated projects, you may need additional diagrams to
-clearly describe subcomponents.
-
