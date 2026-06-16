@@ -39,11 +39,10 @@ public class DominoGameGUI extends JFrame {
      * Initializes the user interface components.
      */
     private void initializeUI() {
-        // Set up the main frame
         setTitle("Domino Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-        // Initialize the board panel
+
         boardPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -55,37 +54,28 @@ public class DominoGameGUI extends JFrame {
         boardPanel.setBackground(Color.GREEN.darker());
         add(boardPanel, BorderLayout.CENTER);
 
-        // Initializes the player´s hand panel
         playerHandPanel = new JPanel();
         playerHandPanel.setBackground(Color.LIGHT_GRAY);
         add(playerHandPanel, BorderLayout.SOUTH);
 
-        // Initializes the draw button
         drawButton = new JButton("Draw");
-        drawButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (game.drawForHuman()) {
-                    updateUI();
-                } else {
-                    JOptionPane.showMessageDialog(
-                            DominoGameGUI.this,
-                            "You can't draw from the boneyard. " +
-                                    "You have a playable " +
-                                    "domino or the boneyard is empty.");
-                }
+        drawButton.addActionListener(e -> {
+            if (game.drawForHuman()) {
+                updateUI();
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Cannot draw — you have a playable domino " +
+                                "or the boneyard is empty.");
             }
         });
         add(drawButton, BorderLayout.EAST);
 
-        // Initializes the message label
-        messageLabel = new JLabel("Start with the adventure of Dominos!");
+        messageLabel = new JLabel("Welcome to Domino Game!");
         add(messageLabel, BorderLayout.NORTH);
 
-        // Set up the frame
-        pack();
         setSize(800, 700);
         setLocationRelativeTo(null);
+        setVisible(true);
         updateUI();
     }
 
@@ -95,25 +85,18 @@ public class DominoGameGUI extends JFrame {
      */
     private void drawBoard(Graphics g) {
         List<Domino> dominos = game.getBoardDominos();
-        int centerY = boardPanel.getHeight() / 2;
-        int centerX = boardPanel.getWidth() / 2;
+        if (dominos.isEmpty()) return;
 
-        if (dominos.isEmpty()) {
-            return;
-        }
-        // Calculate the total width of all dominos
+        int centerY    = boardPanel.getHeight() / 2;
+        int centerX    = boardPanel.getWidth()  / 2;
         int totalWidth = (dominos.size() * (DOMINO_WIDTH / 2)) +
                 ((dominos.size() - 1) * DOMINO_SPACING);
-
-        // Calculate the starting X position to center the dominos
-        int startX = centerX - (totalWidth / 2);
+        int startX     = centerX - (totalWidth / 2);
 
         for (int i = 0; i < dominos.size(); i++) {
-            Domino domino = dominos.get(i);
             int x = startX + (i * (DOMINO_WIDTH / 2)) + (i * DOMINO_SPACING);
             int y = (i % 2 == 0) ? centerY - DOMINO_HEIGHT - 5 : centerY + 5;
-
-            drawDomino(g, domino, x, y);
+            drawDomino(g, dominos.get(i), x, y);
         }
     }
     /**
@@ -125,27 +108,18 @@ public class DominoGameGUI extends JFrame {
      */
     private void drawDomino(Graphics g, Domino domino, int x, int y) {
         Graphics2D g2d = (Graphics2D) g;
-        // Method to set various rendering hints that control the
-        // quality and performance of rendering.
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
-
-        //Drawing the dominos
         g2d.setColor(Color.WHITE);
-        g2d.fillRoundRect(x, y, DOMINO_WIDTH - 1,
-                DOMINO_HEIGHT - 1, 10, 10);
-
+        g2d.fillRoundRect(x, y, DOMINO_WIDTH - 1, DOMINO_HEIGHT - 1, 10, 10);
         g2d.setColor(Color.BLACK);
-        g2d.drawRoundRect(x, y, DOMINO_WIDTH - 1,
-                DOMINO_HEIGHT - 1, 10, 10);
+        g2d.drawRoundRect(x, y, DOMINO_WIDTH - 1, DOMINO_HEIGHT - 1, 10, 10);
         g2d.drawLine(x + DOMINO_WIDTH / 2, y,
                 x + DOMINO_WIDTH / 2, y + DOMINO_HEIGHT);
-
-        //Draw domino values
         g2d.setFont(new Font("Arial", Font.BOLD, 18));
         g2d.drawString(String.valueOf(domino.getLeft()), x + 13, y + 24);
-        g2d.drawString(String.valueOf(domino.getRight()), x +
-                DOMINO_WIDTH / 2 + 13, y + 24);
+        g2d.drawString(String.valueOf(domino.getRight()),
+                x + DOMINO_WIDTH / 2 + 13, y + 24);
     }
 
     /**
@@ -154,22 +128,22 @@ public class DominoGameGUI extends JFrame {
     public void updateUI() {
         boardPanel.repaint();
         updatePlayerHand();
-        updateMessage(game.getGameStateMessage());
+        messageLabel.setText(game.getGameStateMessage());
         drawButton.setEnabled(game.canHumanDraw());
 
         if (game.isGameOver()) {
-            int option = JOptionPane.showConfirmDialog(
-                    this,
-                    "Game Over! Would you like to play again?",
-                    "Game Over",
-                    JOptionPane.YES_NO_OPTION
-            );
-            if (option == JOptionPane.YES_OPTION) {
-                game.resetGame();
-                updateUI();
-            } else {
-                System.exit(0);
-            }
+            SwingUtilities.invokeLater(() -> {
+                int opt = JOptionPane.showConfirmDialog(this,
+                        game.getGameStateMessage() +
+                                "\nWould you like to play again?",
+                        "Game Over", JOptionPane.YES_NO_OPTION);
+                if (opt == JOptionPane.YES_OPTION) {
+                    game.resetGame();
+                    updateUI();
+                } else {
+                    System.exit(0);
+                }
+            });
         }
     }
 
@@ -178,21 +152,13 @@ public class DominoGameGUI extends JFrame {
      */
     private void updatePlayerHand() {
         playerHandPanel.removeAll();
-        playerHandPanel.setLayout(new FlowLayout(FlowLayout.CENTER,
-                5, 5));
-        List<Domino> playerHand = game.getHumanHand();
-        for (Domino domino : playerHand) {
-            JButton dominoButton = new JButton(domino.getLeft() +
-                    "|" + domino.getRight());
-            dominoButton.setPreferredSize(new Dimension(70, 35));
-            dominoButton.setFont(new Font("Arial", Font.BOLD, 16));
-            dominoButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    playDomino(domino);
-                }
-            });
-            playerHandPanel.add(dominoButton);
+        playerHandPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        for (Domino domino : game.getHumanHand()) {
+            JButton btn = new JButton(domino.getLeft() + "|" + domino.getRight());
+            btn.setPreferredSize(new Dimension(70, 35));
+            btn.setFont(new Font("Arial", Font.BOLD, 16));
+            btn.addActionListener(e -> playDomino(domino));
+            playerHandPanel.add(btn);
         }
         playerHandPanel.revalidate();
         playerHandPanel.repaint();
@@ -203,26 +169,21 @@ public class DominoGameGUI extends JFrame {
      * @param domino Domino selected to play
      */
     private void playDomino(Domino domino) {
-        String[] options = {"Left", "Right"};
-        //Asking the position that the player wants to place his domino
-        int position = JOptionPane.showOptionDialog(this,
-                "Where do you want to play the domino?",
-                "Choose Position", JOptionPane.DEFAULT_OPTION,
-                JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-        //Asking if the player wants to rotate his domino
-        int rotate = JOptionPane.showConfirmDialog(this,
-                "Do you want to rotate the domino?",
-                "Rotate Domino", JOptionPane.YES_NO_OPTION);
+        String[] sides = {"Left", "Right"};
+        int side = JOptionPane.showOptionDialog(this,
+                "Where do you want to play?", "Choose Side",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
+                null, sides, sides[0]);
+        int rot = JOptionPane.showConfirmDialog(this,
+                "Rotate the domino?", "Rotate", JOptionPane.YES_NO_OPTION);
 
-        // 0 for Left, 1 for Right
-        boolean playLeft = (position == 0);
-        boolean shouldRotate = (rotate == JOptionPane.YES_OPTION);
+        boolean playLeft     = (side == 0);
+        boolean shouldRotate = (rot == JOptionPane.YES_OPTION);
 
-        if (game.playHumanDomino(domino, playLeft, shouldRotate)) {
-            updateUI();
+        if (!game.playHumanDomino(domino, playLeft, shouldRotate)) {
+            JOptionPane.showMessageDialog(this, "Invalid move. Try again.");
         } else {
-            JOptionPane.showMessageDialog(this,
-                    "Invalid move!");
+            updateUI();
         }
     }
 
@@ -238,11 +199,6 @@ public class DominoGameGUI extends JFrame {
      * Main method to start the game.
      */
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new DominoGameGUI().setVisible(true);
-            }
-        });
+        SwingUtilities.invokeLater(DominoGameGUI::new);
     }
 }

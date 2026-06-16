@@ -61,7 +61,7 @@ public class GameBoard {
      * @return the right end value
      */
     public int getRightEnd() { return rightEnd; }
-
+    public boolean isEmpty() { return playedDominos.isEmpty(); }
     /**
      * Provides a string representation of the game board
      * @return a string showing all played dominos

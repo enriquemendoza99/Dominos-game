@@ -30,13 +30,16 @@ public class DominoGame {
      * Initializes a new game.
      */
     private void initializeGame() {
-        human = new Player("Human");
-        computer = new Player("Computer");
-        boneyard = new Boneyard();
-        board = new GameBoard();
+        human      = new Player("Human");
+        computer   = new Player("Computer");
+        boneyard   = new Boneyard();
+        board      = new GameBoard();
         lastPlayer = null;
-        gameOver = false;
-        dealInitialHands();
+        gameOver   = false;
+        for (int i = 0; i < 7; i++) {
+            human.addDomino(boneyard.draw());
+            computer.addDomino(boneyard.draw());
+        }
     }
 
     /**
@@ -54,12 +57,10 @@ public class DominoGame {
      * @return true if a domino was drawn
      */
     public boolean drawForHuman() {
-        if (gameOver) return false;
-        if (!boneyard.isEmpty() && !hasPlayableDomino(human)) {
-            human.addDomino(boneyard.draw());
-            return true;
-        }
-        return false;
+        if (gameOver || boneyard.isEmpty() || hasPlayableDomino(human))
+            return false;
+        human.addDomino(boneyard.draw());
+        return true;
     }
 
     /**
@@ -72,25 +73,18 @@ public class DominoGame {
     public boolean playHumanDomino(Domino domino, boolean playLeft,
                                    boolean rotate) {
         if (gameOver) return false;
-        if (canPlay(domino, playLeft)) {
-            Domino playedDomino = new Domino(domino.getLeft(),
-                    domino.getRight());
-            if (rotate) {
-                playedDomino.rotate();
-            }
-            if (!isValidPlay(playedDomino, playLeft)) {
-                return false;
-            }
-            board.playDomino(playedDomino, playLeft);
-            human.removeDomino(domino);
-            lastPlayer = human;
-            checkGameOver();
-            if (!gameOver) {
-                computerTurn();
-            }
-            return true;
-        }
-        return false;
+
+        Domino played = new Domino(domino.getLeft(), domino.getRight());
+        if (rotate) played.rotate();
+
+        if (!isValidPlay(played, playLeft)) return false;
+
+        board.playDomino(played, playLeft);
+        human.removeDomino(domino);
+        lastPlayer = human;
+        checkGameOver();
+        if (!gameOver) computerTurn();
+        return true;
     }
 
     /**
@@ -98,31 +92,48 @@ public class DominoGame {
      */
     private void computerTurn() {
         while (!gameOver) {
-            List<Domino> playableDominos = computer.getHand().stream()
-                    .filter(d -> canPlay(d, true) ||
-                            canPlay(d, false))
-                    .toList();
+            Domino chosen   = null;
+            boolean playLeft = true;
 
-            if (playableDominos.isEmpty()) {
-                if (boneyard.isEmpty()) {
-                    break;
-                }
-                computer.addDomino(boneyard.draw());
-            } else {
-                Domino chosenDomino = playableDominos.get(0);
-                boolean playLeft = canPlay(chosenDomino, true);
-                Domino playedDomino = new Domino(chosenDomino.getLeft(),
-                        chosenDomino.getRight());
-                if (!isValidPlay(playedDomino, playLeft)) {
-                    playedDomino.rotate();
-                }
-                board.playDomino(playedDomino, playLeft);
-                computer.removeDomino(chosenDomino);
-                lastPlayer = computer;
-                checkGameOver();
-                break;
+            for (Domino d : computer.getHand()) {
+                if (canPlayLeft(d))  { chosen = d; playLeft = true;  break; }
+                if (canPlayRight(d)) { chosen = d; playLeft = false; break; }
             }
+
+            if (chosen == null) {
+                if (boneyard.isEmpty()) break;
+                computer.addDomino(boneyard.draw());
+                continue;
+            }
+
+            Domino played = new Domino(chosen.getLeft(), chosen.getRight());
+            if (!isValidPlay(played, playLeft)) played.rotate();
+
+            board.playDomino(played, playLeft);
+            computer.removeDomino(chosen);
+            lastPlayer = computer;
+            checkGameOver();
+            break;
         }
+    }
+
+    /**
+     * Checks if a domino can play on the left end.
+     * One of its values must match the current left end of the board.
+     */
+    private boolean canPlayLeft(Domino domino) {
+        if (board.isEmpty()) return true;
+        int end = board.getLeftEnd();
+        return domino.getLeft() == end || domino.getRight() == end;
+    }
+    /**
+     * Checks if a domino can play on the right end.
+     * One of its values must match the current right end of the board.
+     */
+    private boolean canPlayRight(Domino domino) {
+        if (board.isEmpty()) return true;
+        int end = board.getRightEnd();
+        return domino.getLeft() == end || domino.getRight() == end;
     }
 
     /**
@@ -147,36 +158,26 @@ public class DominoGame {
     }
 
     /**
-     * Checks if playing a domino is valid
-     * @param domino The domino to be played
-     * @param playLeft true if playing on the left end
-     * @return true if the play is valid
+     * Checks if a domino placement is valid.
+     * The connecting face must exactly match the board end.
+     * @param domino the domino to check (already rotated if needed)
+     * @param playLeft true if placing on the left end
+     * @return true if the placement is valid
      */
     private boolean isValidPlay(Domino domino, boolean playLeft) {
         if (board.isEmpty()) return true;
-        if (playLeft) {
-            int leftEnd = board.getLeftEnd();
-            return domino.getRight() == leftEnd || domino.getRight() == 0 ||
-                    leftEnd == 0;
-        } else {
-            int rightEnd = board.getRightEnd();
-            return domino.getLeft() == rightEnd || domino.getLeft() == 0 ||
-                    rightEnd == 0;
-        }
+        if (playLeft) return domino.getRight() == board.getLeftEnd();
+        else          return domino.getLeft()  == board.getRightEnd();
     }
 
     /**
      * Checks if the game is over.
      */
     private void checkGameOver() {
-        gameOver = human.getHand().isEmpty() || computer.getHand().isEmpty() ||
+        gameOver = human.getHand().isEmpty() ||
+                computer.getHand().isEmpty() ||
                 (boneyard.isEmpty() && !hasPlayableDomino(human) &&
                         !hasPlayableDomino(computer));
-
-        if (gameOver && (human.getHand().isEmpty() ||
-                computer.getHand().isEmpty())) {
-            lastPlayer = human.getHand().isEmpty() ? human : computer;
-        }
     }
 
     /**
@@ -185,12 +186,8 @@ public class DominoGame {
      * @return true if the player has a playable domino
      */
     private boolean hasPlayableDomino(Player player) {
-        // the function anyMatch return true if any domino in the player´s hand
-        // can be played.
-        // d->canPlay(d,true)||canPlay(d,false) It´s the predicate for anyMatch
-        // Checks if the domino can be played on the left end or right end
-        return player.getHand().stream().anyMatch(d -> canPlay(d, true)
-                || canPlay(d, false));
+        return player.getHand().stream()
+                .anyMatch(d -> canPlayLeft(d) || canPlayRight(d));
     }
 
     /**
@@ -242,29 +239,15 @@ public class DominoGame {
      * @return A string describing the current game state
      */
     public String getGameStateMessage() {
-        if (gameOver) {
-            int humanScore = calculateFinalScore(human);
-            int computerScore = calculateFinalScore(computer);
-
-            if (humanScore < computerScore) {
-                return "Game Over! You win with a score of " +
-                        humanScore + " vs " + computerScore + "!";
-            } else if (computerScore < humanScore) {
-                return "Game Over! Computer wins with a score of " +
-                        computerScore + " vs " + humanScore + "!";
-            } else {
-                // If scores are tied, the last player to play a domino wins
-                return lastPlayer == human ?
-                        "Game Over! It's a tie (" + humanScore + " points " +
-                                "each), but you played last, so you win!" :
-                        "Game Over! It's a tie (" + computerScore +
-                                " points each), but the computer played last," +
-                                " so the computer wins!";
-            }
-        } else {
-            return "Your turn! Select a domino to play or draw " +
-                    "from the boneyard.";
-        }
+        if (!gameOver)
+            return "Your turn! Select a domino to play or draw from boneyard.";
+        int h = human.getHand().stream().mapToInt(Domino::getSum).sum();
+        int c = computer.getHand().stream().mapToInt(Domino::getSum).sum();
+        if (h < c) return "Game Over! You win! (" + h + " vs " + c + ")";
+        if (c < h) return "Game Over! Computer wins! (" + c + " vs " + h + ")";
+        return "Game Over! Tie (" + h + " each). " +
+                (lastPlayer == human ? "You" : "Computer") +
+                " played last and wins!";
     }
 
     /**
